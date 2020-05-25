@@ -28,14 +28,14 @@ class PrivateTagsApiTests(TestCase):
 
     def setUp(self) -> None:
         self.client = APIClient()
-        user = get_user_model().objects.create_user(
+        self.user = get_user_model().objects.create_user(
             email='test@test.com',
             password='test_password'
         )
 
-        self.user = self.client.force_authenticate(user=user)
+        self.client.force_authenticate(user=self.user)
 
-    def retrieve_all_tags(self):
+    def test_retrieve_all_tags(self):
         """ Test to retrieve all tags """
 
         Tag.objects.create(name='vegan', user=self.user)
@@ -49,7 +49,7 @@ class PrivateTagsApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serilaized_data)
 
-    def retrive_user_specific_tags(self):
+    def test_retrieve_user_specific_tags(self):
         """Test for retrieve a user's tags"""
 
         user2 = get_user_model().objects.create_user(
@@ -64,4 +64,27 @@ class PrivateTagsApiTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data['name'], tag.name)
+        self.assertEqual(response.data[0]['name'], tag.name)
+
+    def test_create_tags(self):
+        """Test creating a tag"""
+        data = {
+            'name': 'qwerty'
+        }
+        self.client.post(TAGS_URL, data=data)
+
+        tag_exist = Tag.objects.filter(
+            name=data['name'],
+            user=self.user
+        ).exists()
+
+        self.assertTrue(tag_exist)
+
+    def test_create_tag_invalid(self):
+        """Test creating a tag with in valid data"""
+        data = {
+            'name': ''
+        }
+
+        response = self.client.post(TAGS_URL, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
