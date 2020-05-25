@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'core'
+    'core',
+    'recipe'
 ]
 
 MIDDLEWARE = [
@@ -76,10 +77,10 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME"),
-        'USER': os.environ.get("DB_USER"),
-        'HOST': os.environ.get("DB_HOST"),
-        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'NAME': 'app',
+        'USER': 'postgres',
+        'HOST': '192.168.99.100',
+        'PASSWORD': 'ramu8897',
     }
 }
 
