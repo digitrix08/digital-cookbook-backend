@@ -88,6 +88,7 @@ class TestPrivateRecipeAPI(TestCase):
         self.assertEqual(response.data, serialized_data)
 
     def test_recipe_detail_view(self):
+        """Testing recipe deatil view"""
         recipe = sample_recipe(user=self.user)
         recipe.tags.add(sample_tag(user=self.user))
         recipe.ingredients.add(sample_ingredient(user=self.user))
@@ -97,3 +98,62 @@ class TestPrivateRecipeAPI(TestCase):
         serialized_data = RecipeDetailSerializer(recipe).data
 
         self.assertEqual(response.data, serialized_data)
+
+    def test_create_recipe(self):
+        """Testing create recipes"""
+        data = {
+            'name': 'Aloo Jeera',
+            'price': 150.00,
+            'time': 20
+        }
+
+        response = self.client.post(RECIPE_URL, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        recipe = Recipe.objects.get(id=response.data['id'])
+        for key in data.keys():
+            self.assertEqual(data[key], getattr(recipe, key))
+
+    def test_create_recipe_tags(self):
+        """Test creating recipes with tags """
+        tag1 = sample_tag(user=self.user, name='Non-Veg')
+        tag2 = sample_tag(user=self.user, name='Main course')
+
+        data = {
+            'name': 'Chicken Curry',
+            'price': 200.00,
+            'time': 40,
+            'tags': [tag1.id, tag2.id]
+        }
+
+        response = self.client.post(RECIPE_URL, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        recipe = Recipe.objects.get(id=response.data['id'])
+        tags = recipe.tags.all()
+
+        self.assertIn(tag1, tags)
+        self.assertIn(tag2, tags)
+        self.assertEqual(tags.count(), 2)
+
+    def test_create_recipe_ingredients(self):
+        """Test creating recipes with ingredients """
+        ingredient1 = sample_ingredient(user=self.user, name='Eggs')
+        ingredient2 = sample_ingredient(user=self.user, name='Cheese')
+
+        data = {
+            'name': 'Cheese cake',
+            'price': 250.00,
+            'time': 50,
+            'ingredients': [ingredient1.id, ingredient2.id]
+        }
+
+        response = self.client.post(RECIPE_URL, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        recipe = Recipe.objects.get(id=response.data['id'])
+        ingredients = recipe.ingredients.all()
+
+        self.assertEqual(ingredients.count(), 2)
+        self.assertIn(ingredient1, ingredients)
+        self.assertIn(ingredient2, ingredients)
