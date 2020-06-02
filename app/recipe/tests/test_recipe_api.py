@@ -157,3 +157,49 @@ class TestPrivateRecipeAPI(TestCase):
         self.assertEqual(ingredients.count(), 2)
         self.assertIn(ingredient1, ingredients)
         self.assertIn(ingredient2, ingredients)
+
+    def test_update_recipe_partial(self):
+        """Test updating the recipe with patch request"""
+        recipe = sample_recipe(user=self.user)
+        recipe.tags.add(sample_tag(user=self.user))
+
+        new_tag = sample_tag(user=self.user, name="Eggy")
+
+        data_to_be_updated = {
+            'name': 'Cheese Omlette',
+            'tags': [new_tag.id]
+        }
+
+        url = get_detail_url(recipe.id)
+        self.client.patch(url, data_to_be_updated)
+
+        recipe.refresh_from_db()
+
+        self.assertEqual(recipe.name, data_to_be_updated['name'])
+        tags = recipe.tags.all()
+        self.assertEqual(tags.count(), 1)
+        self.assertIn(new_tag, tags)
+
+    def test_update_recipe_complete(self):
+        """Test updating the recipe with put request"""
+        recipe = sample_recipe(user=self.user)
+        recipe.tags.add(sample_tag(user=self.user))
+
+        data_to_be_updated = {
+            'name': 'Cheese Omlette',
+            'time': 10,
+            'price': 50.00
+        }
+
+        url = get_detail_url(recipe.id)
+        self.client.put(url, data_to_be_updated)
+
+        recipe.refresh_from_db()
+
+        self.assertEqual(recipe.name, data_to_be_updated['name'])
+        self.assertEqual(recipe.price, data_to_be_updated['price'])
+        self.assertEqual(recipe.time, data_to_be_updated['time'])
+
+        tags = recipe.tags.all()
+
+        self.assertEqual(tags.count(), 0)
