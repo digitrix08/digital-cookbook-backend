@@ -43,7 +43,7 @@ class TestRecipes(TestCase):
         self.assertEqual(recipe.name, str(recipe))
 
     @patch('uuid.uuid4')
-    def test_receipe_file_name_uuid(self, mock_uuid):
+    def test_recipe_file_name_uuid(self, mock_uuid):
         """Test image location and path """
         test_uuid = 'test_uuid'
         mock_uuid.return_value = test_uuid

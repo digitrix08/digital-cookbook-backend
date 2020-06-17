@@ -5,6 +5,9 @@ from recipe.models import Recipe, Tag, Ingredient
 from rest_framework import status
 from rest_framework.test import APIClient
 from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
+import tempfile
+import os
+from PIL import Image
 
 RECIPE_URL = reverse('recipe:recipe-list')
 
@@ -29,6 +32,10 @@ def sample_ingredient(user, name="Egg"):
 
 def get_detail_url(recipe_id):
     return reverse('recipe:recipe-detail', args=[recipe_id])
+
+
+def get_image_upload_url(recipe_id):
+    return reverse('recipe:recipe-upload-image', args=[recipe_id])
 
 
 class TestPublicRecipeAPI(TestCase):
@@ -203,3 +210,45 @@ class TestPrivateRecipeAPI(TestCase):
         tags = recipe.tags.all()
 
         self.assertEqual(tags.count(), 0)
+
+
+class TestRecipeImageUpload(TestCase):
+
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="test_user@test.com",
+            password="test_password"
+        )
+        self.client.force_authenticate(user=self.user)
+        self.recipe = sample_recipe(user=self.user)
+
+    def tearDown(self) -> None:
+        self.recipe.image.delete()
+
+    def test_recipe_image_upload(self):
+        """Test image upload for recipe successfully"""
+        url = get_image_upload_url(self.recipe.id)
+
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as ntf:
+            image = Image.new('RGB', (10, 10))
+            image.save(ntf, format='JPEG')
+            ntf.seek(0)
+            response = self.client.post(url,
+                                        {'image': ntf},
+                                        format='multipart')
+
+        self.recipe.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('image', response.data)
+        self.assertTrue(os.path.exists(self.recipe.image.path))
+
+    def test_recipe_image_upload_fail(self):
+        """Test image upload for recipe unsuccessful"""
+        url = get_image_upload_url(self.recipe.id)
+        response = self.client.post(url,
+                                    {"image": "image_fake_data"},
+                                    format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
