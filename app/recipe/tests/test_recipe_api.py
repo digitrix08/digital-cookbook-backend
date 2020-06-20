@@ -211,6 +211,56 @@ class TestPrivateRecipeAPI(TestCase):
 
         self.assertEqual(tags.count(), 0)
 
+    def test_recipe_filtering_tags(self):
+        """Testing recipe filtering via tags"""
+        recipe1 = sample_recipe(user=self.user, name="Vegetable Curry")
+        recipe2 = sample_recipe(user=self.user, name="Kadai Panner")
+        recipe3 = sample_recipe(user=self.user, name="Fish Curry")
+
+        tag1 = sample_tag(user=self.user, name="Vegetarian")
+        tag2 = sample_tag(user=self.user, name="Dairy")
+
+        recipe1.tags.add(tag1)
+        recipe2.tags.add(tag2)
+
+        response = self.client.get(
+            path=RECIPE_URL,
+            data={'tags': f'{tag1.id}, {tag2.id}'}
+        )
+
+        serializer1 = RecipeSerializer(recipe1)
+        serializer2 = RecipeSerializer(recipe2)
+        serializer3 = RecipeSerializer(recipe3)
+
+        self.assertIn(serializer1.data, response.data)
+        self.assertIn(serializer2.data, response.data)
+        self.assertNotIn(serializer3.data, response.data)
+
+    def test_recipe_filtering_ingredients(self):
+        """Testing recipe filtering via ingredients"""
+        recipe1 = sample_recipe(user=self.user, name="Vegetable Curry")
+        recipe2 = sample_recipe(user=self.user, name="Kadai Panner")
+        recipe3 = sample_recipe(user=self.user, name="Fish Curry")
+
+        ingredient1 = sample_ingredient(name='Panner')
+        ingredient2 = sample_ingredient(name='Fish')
+
+        recipe2.ingredients.add(ingredient1)
+        recipe3.ingredients.add(ingredient2)
+
+        response = self.client.get(
+            path=RECIPE_URL,
+            data={'ingredients': f'{ingredient1.id}, {ingredient2.id}'}
+        )
+
+        serializer1 = RecipeSerializer(recipe1)
+        serializer2 = RecipeSerializer(recipe2)
+        serializer3 = RecipeSerializer(recipe3)
+
+        self.assertNotIn(serializer1.data, response.data)
+        self.assertIn(serializer2.data, response.data)
+        self.assertIn(serializer3.data, response.data)
+
 
 class TestRecipeImageUpload(TestCase):
 
