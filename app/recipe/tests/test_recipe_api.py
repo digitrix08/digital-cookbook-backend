@@ -242,8 +242,8 @@ class TestPrivateRecipeAPI(TestCase):
         recipe2 = sample_recipe(user=self.user, name="Kadai Panner")
         recipe3 = sample_recipe(user=self.user, name="Fish Curry")
 
-        ingredient1 = sample_ingredient(name='Panner')
-        ingredient2 = sample_ingredient(name='Fish')
+        ingredient1 = sample_ingredient(user=self.user, name='Panner')
+        ingredient2 = sample_ingredient(user=self.user, name='Fish')
 
         recipe2.ingredients.add(ingredient1)
         recipe3.ingredients.add(ingredient2)

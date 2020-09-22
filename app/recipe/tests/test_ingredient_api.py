@@ -112,9 +112,10 @@ class TestPrivateIngredientApi(TestCase):
         recipe1 = Recipe.objects.create(
             name="Cheese Toast",
             time=5,
-            price=30
+            price=30,
+            user=self.user
         )
-        recipe1.ingredeints.add(ingredient1)
+        recipe1.ingredients.add(ingredient1)
 
         response = self.client.get(
             path=INGREDIENT_URL,
@@ -140,12 +141,14 @@ class TestPrivateIngredientApi(TestCase):
         recipe1 = Recipe.objects.create(
             name="Egg Toast",
             time=5,
-            price=30
+            price=30,
+            user=self.user
         )
         recipe2 = Recipe.objects.create(
             name="Egg pockets with meat",
             time=5,
-            price=30
+            price=30,
+            user=self.user
         )
 
         recipe1.ingredients.add(ingredient1)
