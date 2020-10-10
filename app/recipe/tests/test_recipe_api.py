@@ -242,11 +242,11 @@ class TestPrivateRecipeAPI(TestCase):
         recipe2 = sample_recipe(user=self.user, name="Kadai Panner")
         recipe3 = sample_recipe(user=self.user, name="Fish Curry")
 
-        ingredient1 = sample_ingredient(user=self.user, name='Panner')
-        ingredient2 = sample_ingredient(user=self.user, name='Fish')
+        ingredient1 = sample_ingredient(user=self.user, name='Potato')
+        ingredient2 = sample_ingredient(user=self.user, name='Paneer')
 
-        recipe2.ingredients.add(ingredient1)
-        recipe3.ingredients.add(ingredient2)
+        recipe1.ingredients.add(ingredient1)
+        recipe2.ingredients.add(ingredient2)
 
         response = self.client.get(
             path=RECIPE_URL,
@@ -257,9 +257,9 @@ class TestPrivateRecipeAPI(TestCase):
         serializer2 = RecipeSerializer(recipe2)
         serializer3 = RecipeSerializer(recipe3)
 
-        self.assertNotIn(serializer1.data, response.data)
+        self.assertIn(serializer1.data, response.data)
         self.assertIn(serializer2.data, response.data)
-        self.assertIn(serializer3.data, response.data)
+        self.assertNotIn(serializer3.data, response.data)
 
 
 class TestRecipeImageUpload(TestCase):
