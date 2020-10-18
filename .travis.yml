@@ -6,7 +6,8 @@ services:
   - docker
 
 before_script:
-  - pip install docker-compose
-
+  - pip install -r requirements.txt
 script:
-  - docker-compose run app sh -c "cd app && python manage.py test && flake8"
+  - cd app
+  - flake8
+  - python manage.py test
