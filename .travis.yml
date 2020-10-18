@@ -13,3 +13,4 @@ before_script:
   - flake8
   - python manage.py makemigrations
   - python manage.py test
+  
