@@ -2,9 +2,6 @@ language: python
 python:
   - "3.7"
 
-services:
-  - docker
-
 before_script:
   - pip install -r requirements.txt
 
@@ -13,4 +10,3 @@ before_script:
   - flake8
   - python manage.py makemigrations
   - python manage.py test
-  
