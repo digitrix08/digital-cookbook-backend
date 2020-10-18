@@ -7,7 +7,9 @@ services:
 
 before_script:
   - pip install -r requirements.txt
-script:
+
+  script:
   - cd app
   - flake8
+  - python manage.py makemigrations
   - python manage.py test
