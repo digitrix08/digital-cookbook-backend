@@ -2,11 +2,11 @@ language: python
 python:
   - "3.7"
 
-before_script:
-  - pip install -r requirements.txt
+services:
+  - docker
 
-  script:
-  - cd app
-  - flake8
-  - python manage.py makemigrations
-  - python manage.py test
+before_script:
+  - pip install docker-compose
+
+script:
+  - docker-compose run app sh -c "cd app && python manage.py test && flake8"
