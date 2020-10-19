@@ -6,4 +6,5 @@ before_script:
   - pip install -r requirements.txt
 
 script:
-  - python app/manage.py test
+  - python app/manage.py test recipe
+  - python app/manage.py test core
